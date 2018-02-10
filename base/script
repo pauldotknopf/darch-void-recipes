@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+# Update everything
+xbps-install -Suvy
+
+# Disable file system checking.
+# The reason is because it fails when checking
+# drives that are currently mounted.
+# When using Darch, we mount a drive in initramfs
+# to mount the squash image.
+# We also put it in fstab, so it complains on boot.
+touch /fastboot
+
+mkdir /etc/darch
+mkdir /var/lib/darch
+
+#xbps-install -y NetworkManager
+#ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/
+ln -s /etc/sv/dhcpcd /etc/runit/runsvdir/default/dhcpcd
+
+# TODO: Install Darch

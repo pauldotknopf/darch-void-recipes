@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+# Setup the locales.
+echo en_US.UTF-8 UTF-8 >> /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+sed -i -e "s|#\?KEYMAP=.*|KEYMAP=us|" /etc/rc.conf
+
+# Set the root password
+if [ -n  "$ROOT_PASSWD" ]; then
+    echo "Using root password provided by environment variable..."
+    echo -en "$ROOT_PASSWD\n$ROOT_PASSWD" | passwd
+else
+    echo "Using default root password..."
+    echo -en "password\npassword" | passwd
+fi
+
+# Add our users
+groupadd guests
+useradd -m -U -G wheel,users,audio,video,cdrom,input -s /bin/bash pknopf
+useradd -m -U -G guests,users -s /bin/bash guest
+
+# Set the user password
+if [ -n  "$USER_PASSWD" ]; then
+    echo "Using user password provided by environment variable..."
+    echo -en "$USER_PASSWD\n$USER_PASSWD" | passwd pknopf
+else
+    echo "Using default user password..."
+    echo -en "password\npassword" | passwd pknopf
+fi
+
+# Setup sudo
+mkdir -p /etc/sudoers.d
+echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers.d/wheel.conf
