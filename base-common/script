@@ -31,4 +31,4 @@ fi
 
 # Setup sudo
 mkdir -p /etc/sudoers.d
-echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers.d/wheel.conf
+echo " %wheel ALL=(ALL) ALL" >> /etc/sudoers.d/wheel
