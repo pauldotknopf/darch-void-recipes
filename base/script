@@ -12,15 +12,23 @@ xbps-install -Suvy
 # We also put it in fstab, so it complains on boot.
 touch /fastboot
 
-# Install Darch. It isn't in the main repositories yet,
-# so we have to compile it ourselves.
-sudo xbps-install -y --repository=$(pwd)/tmprepo darch
-ln -s /etc/sv/containerd /etc/runit/runsvdir/default/containerd
+# These commands were used to sign the packages on my personal repo.
+#xbps-rindex --sign --signedby 'Paul Knopf <pauldotknopf@gmail.com>' --privkey privkey.pem tmprepo/
+#xbps-rindex --sign-pkg --signedby 'Paul Knopf <pauldotknopf@gmail.com>' --privkey privkey.pem tmprepo/darch-0.18.3_1.x86_64.xbps
+
+# Install the key used for my private repository.
+mkdir -p /var/db/xbps/keys/
+cp private-repo-key.plist /var/db/xbps/keys/fa:bb:ce:c0:d6:72:21:9d:04:8d:b6:83:ea:4c:60:c5.plist
+xbps-install -y -S -R https://github.com/pauldotknopf/binary-repos/releases/download/void-linux-release/
+
+# Install Darch.
+xbps-install --repository=https://github.com/pauldotknopf/binary-repos/releases/download/void-linux-release/ -y darch
+
 # I store containerd on /var/lib/darch/containerd, because /var/lib/darch
 # is an external partition. This way, images are persisted across boots.
 mkdir -p /etc/containerd
 echo "root = \"/var/lib/darch/containerd\"" > /etc/containerd/config.toml
 
-#xbps-install -y NetworkManager
-#ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/
-ln -s /etc/sv/dhcpcd /etc/runit/runsvdir/default/dhcpcd
+xbps-install -y NetworkManager
+ln -s /etc/sv/NetworkManager /etc/runit/runsvdir/default/
+#ln -s /etc/sv/dhcpcd /etc/runit/runsvdir/default/dhcpcd
